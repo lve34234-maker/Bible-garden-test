@@ -454,6 +454,12 @@ body.dark-theme .dp-ref-tag { background:#2a3550; color:#a8c8ee; }
 .ptcl{position:fixed;pointer-events:none;animation:ptclFly 1.1s ease forwards;z-index:9997;font-size:1.3rem;}
 @keyframes ptclFly{from{opacity:1;transform:translate(0,0) scale(1)}to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0.2) rotate(360deg)}}
 .empty-txt{text-align:center;padding:28px;color:var(--text-mute);font-size:1.05rem;}
+.test-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 9999; background: linear-gradient(90deg, #ff6060, #c03030); color: white; padding: 5px 12px; text-align: center; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; box-shadow: 0 2px 8px rgba(192,48,48,0.4); animation: testPulse 2s ease-in-out infinite; }
+@keyframes testPulse { 0%,100%{background:linear-gradient(90deg,#ff6060,#c03030)} 50%{background:linear-gradient(90deg,#ff8080,#e04040)} }
+body.test-mode { padding-top: 28px; }
+body.test-mode .app-header { top: 28px; }
+body.test-mode.no-effects .test-banner { animation: none; }
+.test-badge { display: inline-block; background: linear-gradient(135deg, #ff6060, #c03030); color: white; border-radius: 6px; padding: 1px 7px; font-size: 0.7rem; font-weight: 700; margin-left: 4px; letter-spacing: 0.5px; }
 </style>
 </head>
 <body class="font-gaegu size-normal">
@@ -483,9 +489,10 @@ body.dark-theme .dp-ref-tag { background:#2a3550; color:#a8c8ee; }
       <button class="auth-tab" id="tab-su" onclick="switchAuthTab('signup')">회원가입</button>
     </div>
     <div id="form-login">
+      <div id="testLoginHint" style="display:none;background:linear-gradient(135deg,#fff5e8,#ffe8d0);border:2px dashed #f0a070;border-radius:12px;padding:9px 12px;font-size:0.85rem;color:#a05020;margin-bottom:12px;line-height:1.45;text-align:center">🧪 <b>테스트 모드</b><br>그냥 <b>로그인 버튼만 누르면</b> 관리자(<code style="background:#ffe0c0;padding:1px 6px;border-radius:5px">onchurch</code>)로 자동 입장!<br><span style="font-size:0.75rem;color:#b07040">(다른 아이디 입력하면 그 계정으로 들어감)</span></div>
       <div class="auth-field"><label>아이디</label><input class="auth-input" id="lid" type="text" placeholder="아이디"></div>
       <div class="auth-field"><label>비밀번호</label><input class="auth-input" id="lpw" type="password" placeholder="비밀번호" onkeydown="if(event.key==='Enter')doLogin()"></div>
-      <button class="auth-submit" onclick="doLogin()">🌱 로그인</button>
+      <button class="auth-submit" id="loginBtn" onclick="doLogin()">🌱 로그인</button>
       <div class="auth-err" id="lerr"></div>
     </div>
     <div id="form-signup" class="hidden">
@@ -521,7 +528,7 @@ body.dark-theme .dp-ref-tag { background:#2a3550; color:#a8c8ee; }
 
 <div id="screen-main" class="hidden">
   <div class="app-header">
-    <div class="app-logo">🌿 성경 정원</div>
+    <div class="app-logo">🌿 성경 정원<span id="logoTestBadge"></span></div>
     <div class="header-right">
       <div class="pts-pill">✨ <span class="pts-num" id="ptsNum">0</span>점</div>
       <span class="user-chip" id="userChip"></span>
@@ -558,6 +565,14 @@ body.dark-theme .dp-ref-tag { background:#2a3550; color:#a8c8ee; }
           <div class="passage-text" id="passageText"><div class="loading-txt">📖 말씀 불러오는 중...</div></div>
         </div>
         <div id="bibleActions"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🎙️ 성경 읽기 인증 <span id="recBadge" class="daily-badge" style="margin-left:auto">오늘 0 / 3회 · 0점</span></div>
+      <div style="font-size:0.82rem;color:var(--text-mute);margin-bottom:10px;line-height:1.5">💡 성경을 소리 내어 읽고 녹음해서 올려요! 하루 <b>3번까지 +10점씩</b> 받을 수 있어요</div>
+      <div class="rec-area" id="recArea">
+        <button class="rec-btn idle" id="recBtn" onclick="toggleRec()">🎙️</button>
+        <div class="rec-status" id="recStatus">버튼을 누르고 성경을 소리 내어 읽어요</div>
       </div>
     </div>
     <div class="card comm-card">
@@ -606,7 +621,7 @@ body.dark-theme .dp-ref-tag { background:#2a3550; color:#a8c8ee; }
     <div class="rank-period-info" id="rankPeriodInfo"></div>
     <div id="rankPodium" class="rank-podium"></div>
     <div id="rankList"><div class="empty-txt">📊 불러오는 중...</div></div>
-    <div style="font-size:0.78rem;color:var(--text-mute);text-align:center;margin-top:14px;line-height:1.5">💡 점수는 퀴즈 정답·커뮤니티 게시·교회 출석으로 쌓여요!</div>
+    <div style="font-size:0.78rem;color:var(--text-mute);text-align:center;margin-top:14px;line-height:1.5">💡 점수는 퀴즈 정답·성경 읽기·커뮤니티 게시·교회 출석으로 쌓여요!</div>
   </div>
   <div class="tab-content" id="tab-settings">
     <div style="font-size:1.3rem;font-weight:700;color:var(--text-title);padding:0 0 12px">⚙️ 설정</div>
@@ -693,10 +708,11 @@ body.dark-theme .dp-ref-tag { background:#2a3550; color:#a8c8ee; }
 
     <div class="settings-section">
       <div class="set-section-title">❓ 도움말</div>
-      <div class="help-item"><div class="help-q">🌱 점수는 어떻게 모아요?</div><div class="help-a">매일 <b>퀴즈 정답(+5점)</b>, <b>커뮤니티 첫 게시글(+10점)</b>, <b>교회 출석 QR(+2점)</b>으로 모을 수 있어요.</div></div>
+      <div class="help-item"><div class="help-q">🌱 점수는 어떻게 모아요?</div><div class="help-a">매일 <b>퀴즈 정답(+5점)</b>, <b>성경 읽기 녹음(+10점, 3회까지)</b>, <b>커뮤니티 첫 게시글(+10점)</b>, <b>교회 출석 QR(+2점)</b>으로 모을 수 있어요.</div></div>
       <div class="help-item"><div class="help-q">🌳 친구는 어떻게 커요?</div><div class="help-a">물주기·밥주기 같은 돌보기를 하면 친구가 자라요. 모든 상태가 100이 되면 <b>레벨업</b>! 5단계부터는 숨겨진 별이에요.</div></div>
       <div class="help-item"><div class="help-q">⛪ 교회 출석은 어떻게 해요?</div><div class="help-a">교회에서 보여주는 <b>QR 코드를 핸드폰으로 스캔</b>해야 출석 인정 + 2점이 적립돼요.</div></div>
       <div class="help-item"><div class="help-q">🏆 새 친구 해금은요?</div><div class="help-a">친구 레벨 10단계(숨겨진 별까지 모두)를 완성하면 <b>두 번째 친구</b>를 추가할 수 있어요!</div></div>
+      <div class="help-item"><div class="help-q">🎙️ 성경 읽기 인증은요?</div><div class="help-a">버튼을 누르고 성경을 소리 내어 읽고 녹음해서 올려요. 하루 <b>3번까지 각각 +10점</b>! 마이크 권한이 필요해요.</div></div>
       <div class="help-item"><div class="help-q">🌟 커뮤니티 게시글로 점수가 들어와요?</div><div class="help-a">하루 <b>첫 게시글</b>을 올리면 +10점이 자동으로 들어와요! 다른 친구의 글에 좋아요·댓글도 달아보세요 ❤️</div></div>
     </div>
 
@@ -704,7 +720,16 @@ body.dark-theme .dp-ref-tag { background:#2a3550; color:#a8c8ee; }
       <div class="set-section-title">ℹ️ 앱 정보</div>
       <div class="set-row"><div class="set-row-label"><div class="set-row-title">앱 이름</div></div><div style="color:var(--text-soft);font-weight:700">🌿 성경 정원</div></div>
       <div class="set-row"><div class="set-row-label"><div class="set-row-title">버전</div></div><div style="color:var(--text-soft)">v2.0.0 (설정 추가)</div></div>
-      <div class="set-row"><div class="set-row-label"><div class="set-row-title">데이터 저장소</div></div><div style="color:var(--text-soft)">Firebase ☁️</div></div>
+      <div class="set-row"><div class="set-row-label"><div class="set-row-title">데이터 저장소</div></div><div style="color:var(--text-soft)" id="storageInfo">Firebase ☁️</div></div>
+    </div>
+
+    <div class="settings-section" id="testModeSection" style="display:none;background:linear-gradient(135deg,#fff8f0,#ffeee0);border:2px dashed #f0a070">
+      <div class="set-section-title" style="color:#c05020">🧪 테스트 모드 <span style="font-size:0.75rem;background:#ffe0c0;color:#a04020;padding:1px 8px;border-radius:6px;margin-left:4px">onchurch 전용</span></div>
+      <div style="font-size:0.85rem;color:#a06040;line-height:1.5;margin-bottom:10px;background:#fff5e8;padding:8px 11px;border-radius:10px">💡 새 기능 테스트할 때 켜요. 실제 데이터와 <b>완전히 분리</b>된 저장소를 써요.<br>📌 모드 전환 시 자동 로그아웃되고 페이지가 새로고침돼요.</div>
+      <div class="set-row">
+        <div class="set-row-label"><div class="set-row-title">🧪 테스트 모드</div><div class="set-row-desc" id="testModeDesc">OFF: 실제 데이터 사용</div></div>
+        <label class="toggle"><input type="checkbox" id="toggle-test" onchange="toggleTestMode(this.checked)"><span class="toggle-slider"></span></label>
+      </div>
     </div>
 
     <div class="settings-section" style="background:#fff5f5;border:2px dashed #f0b0b0">
@@ -790,7 +815,8 @@ body.dark-theme .dp-ref-tag { background:#2a3550; color:#a8c8ee; }
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
-const firebaseConfig = {
+// 🌿 실제 (운영) Firebase 프로젝트
+const PROD_FIREBASE_CONFIG = {
   apiKey: "AIzaSyB9lu2eBbDGCv2as81b3mWdzi-n_SSoN0g",
   authDomain: "tjdrud-749bf.firebaseapp.com",
   projectId: "tjdrud-749bf",
@@ -799,6 +825,21 @@ const firebaseConfig = {
   appId: "1:653650623003:web:178681a6a87e91968d56be",
   measurementId: "G-S5X5VZRM8B"
 };
+// 🧪 테스트용 Firebase 프로젝트 (선택 사항)
+// 완전히 분리된 저장소를 원하면 새 Firebase 프로젝트를 만들어서 여기에 키를 넣어요.
+// 비워두면 같은 프로젝트의 'test_' 컬렉션에 저장돼서 실제 데이터와 분리돼요.
+const TEST_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyB9lu2eBbDGCv2as81b3mWdzi-n_SSoN0g",
+  authDomain: "tjdrud-749bf.firebaseapp.com",
+  projectId: "tjdrud-749bf",
+  storageBucket: "tjdrud-749bf.firebasestorage.app",
+  messagingSenderId: "653650623003",
+  appId: "1:653650623003:web:178681a6a87e91968d56be",
+  measurementId: "G-S5X5VZRM8B"
+};
+const IS_TEST_MODE = localStorage.getItem('bg_testmode') === '1';
+const firebaseConfig = IS_TEST_MODE ? TEST_FIREBASE_CONFIG : PROD_FIREBASE_CONFIG;
+const USE_TEST_PREFIX = IS_TEST_MODE && (PROD_FIREBASE_CONFIG.projectId === TEST_FIREBASE_CONFIG.projectId);
 const DOMAIN = '@biblegarden.app';
 const ADMIN_ID = 'onchurch';
 let auth, db;
@@ -841,6 +882,45 @@ function updateSettingsUI() {
   if (te) te.checked = !!SETTINGS.effects;
   const ts = document.getElementById('toggle-sound');
   if (ts) ts.checked = !!SETTINGS.sound;
+  const tt = document.getElementById('toggle-test');
+  if (tt) tt.checked = IS_TEST_MODE;
+  const td = document.getElementById('testModeDesc');
+  if (td) {
+    if (IS_TEST_MODE) td.innerHTML = 'ON: <b style="color:#c05020">' + (USE_TEST_PREFIX ? 'test_ 컬렉션 사용 중' : '별도 Firebase 프로젝트 사용 중') + '</b>';
+    else td.textContent = 'OFF: 실제 데이터 사용';
+  }
+  const si = document.getElementById('storageInfo');
+  if (si) si.innerHTML = IS_TEST_MODE ? 'Firebase ☁️ <span class="test-badge">🧪 TEST</span>' : 'Firebase ☁️';
+}
+function showTestBanner() {
+  document.body.classList.add('test-mode');
+  if (!document.getElementById('testBanner')) {
+    const b = document.createElement('div');
+    b.id = 'testBanner';
+    b.className = 'test-banner';
+    const usingPrefix = USE_TEST_PREFIX;
+    b.innerHTML = '🧪 테스트 모드 — 데이터가 ' + (usingPrefix ? '<u>test_ 컬렉션</u>' : '<u>별도 Firebase 프로젝트</u>') + '에 따로 저장돼요';
+    document.body.appendChild(b);
+  }
+  const badge = document.getElementById('logoTestBadge');
+  if (badge) badge.innerHTML = '<span class="test-badge">🧪 TEST</span>';
+  const hint = document.getElementById('testLoginHint');
+  if (hint) hint.style.display = 'block';
+  const loginBtn = document.getElementById('loginBtn');
+  if (loginBtn) loginBtn.textContent = '🧪 빠른 로그인';
+}
+function toggleTestMode(v) {
+  const goingTo = v ? '테스트' : '일반';
+  if (!confirm('🧪 ' + goingTo + ' 모드로 전환할까요?\n\n현재 로그인이 풀리고 페이지가 새로고침돼요.\n(' + goingTo + ' 데이터로 다시 로그인 또는 가입해주세요)')) {
+    const t = document.getElementById('toggle-test');
+    if (t) t.checked = !v;
+    return;
+  }
+  if (v) localStorage.setItem('bg_testmode', '1');
+  else localStorage.removeItem('bg_testmode');
+  const finish = () => location.reload();
+  if (typeof auth !== 'undefined' && auth) auth.signOut().then(finish).catch(finish);
+  else finish();
 }
 function setTheme(t) { SETTINGS.theme = t; saveSettings(); applySettings(); toast(t === 'dark' ? '🌙 어두운 테마로 변경!' : '☀️ 밝은 테마로 변경!'); }
 function setFont(f) { SETTINGS.font = f; saveSettings(); applySettings(); toast('🔤 글씨체가 변경됐어요!'); }
@@ -885,6 +965,14 @@ window.addEventListener('load', function () {
   try { firebase.initializeApp(firebaseConfig); } catch (e) {}
   auth = firebase.auth();
   db = firebase.firestore();
+  if (USE_TEST_PREFIX) {
+    const _origCollection = db.collection.bind(db);
+    db.collection = function(name) { return _origCollection('test_' + name); };
+    console.log('🧪 테스트 모드: test_ prefix 사용 중');
+  } else if (IS_TEST_MODE) {
+    console.log('🧪 테스트 모드: 별도 Firebase 프로젝트 사용 중');
+  }
+  if (IS_TEST_MODE) showTestBanner();
   auth.onAuthStateChanged(async function (user) {
     if (user) { CU = user; await loadUserDoc(user.uid); }
     else {
@@ -916,11 +1004,36 @@ function switchAuthTab(t) {
   document.getElementById('serr').textContent = '';
 }
 async function doLogin() {
-  const id = document.getElementById('lid').value.trim().toLowerCase();
-  const pw = document.getElementById('lpw').value;
+  const idRaw = document.getElementById('lid').value.trim().toLowerCase();
+  const pwRaw = document.getElementById('lpw').value;
   const err = document.getElementById('lerr');
-  if (!id || !pw) { err.textContent = '아이디와 비밀번호를 입력해요!'; return; }
-  try { await auth.signInWithEmailAndPassword(id + DOMAIN, pw); }
+  if (IS_TEST_MODE) {
+    err.textContent = '';
+    const id = idRaw || ADMIN_ID;
+    const pw = pwRaw || 'TestDefault123';
+    const btn = document.getElementById('loginBtn');
+    if (btn) { btn.disabled = true; btn.textContent = '🧪 입장 중...'; }
+    try {
+      await auth.signInWithEmailAndPassword(id + DOMAIN, pw);
+    } catch (e1) {
+      try {
+        const cred = await auth.createUserWithEmailAndPassword(id + DOMAIN, pw);
+        await db.collection('users').doc(cred.user.uid).set({
+          username: id, realName: '🧪 ' + id, email: id + DOMAIN,
+          isAdmin: id === ADMIN_ID,
+          pet: null, totalQuizzes: 0, correctCount: 0,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        toast('🧪 새 테스트 계정 생성됨: ' + id);
+      } catch (e2) {
+        err.textContent = '🧪 자동 로그인 실패: ' + e2.message;
+        if (btn) { btn.disabled = false; btn.textContent = '🧪 빠른 로그인'; }
+      }
+    }
+    return;
+  }
+  if (!idRaw || !pwRaw) { err.textContent = '아이디와 비밀번호를 입력해요!'; return; }
+  try { await auth.signInWithEmailAndPassword(idRaw + DOMAIN, pwRaw); }
   catch { err.textContent = '아이디 또는 비밀번호가 틀렸어요!'; }
 }
 async function doSignup() {
@@ -1283,7 +1396,7 @@ async function resetSelfData() {
   if (!confirm('내 친구·포인트·인증 기록·출석을 모두 지우고 처음부터 시작할까요?\n(내 계정은 유지돼요)')) return;
   if (!confirm('되돌릴 수 없어요! 정말 진행할까요?')) return;
   try {
-    const colsToDelByUid = ['community','pointLog'];
+    const colsToDelByUid = ['recordings','community','pointLog'];
     for (const col of colsToDelByUid) {
       const b = db.batch();
       const s = await db.collection(col).where('uid','==',CU.uid).get();
@@ -1320,6 +1433,16 @@ function resetPetSelectState() {
 }
 async function updateActivityUI() {
   const dr = await getDailyRecord();
+  const recBadge = document.getElementById('recBadge');
+  if (recBadge) {
+    const cnt = dr.recordingCount || 0;
+    recBadge.textContent = '오늘 ' + cnt + ' / 3회 · ' + (cnt * 10) + '점';
+    recBadge.className = 'daily-badge' + (cnt >= 3 ? ' full' : '');
+    if (cnt >= 3) {
+      const area = document.getElementById('recArea');
+      if (area) area.innerHTML = '<div class="rec-status" style="color:#4a9a50;text-align:center;padding:18px">🎉 오늘 녹음 인증 완료!<br>내일 또 해요!</div>';
+    }
+  }
   const badge = document.getElementById('commBadge');
   if (badge) {
     const cnt = dr.communityCount || 0;
@@ -1346,6 +1469,8 @@ function loadMyPage() {
   document.getElementById('myChurch').textContent = churchTotal;
   const ni = document.getElementById('newNickInp');
   if (ni && !ni.value) ni.value = UD.realName || '';
+  const tms = document.getElementById('testModeSection');
+  if (tms) tms.style.display = (UD.username === ADMIN_ID) ? 'block' : 'none';
 }
 async function changeNickname() {
   const newName = document.getElementById('newNickInp').value.trim();
@@ -1577,6 +1702,92 @@ async function saveQuizRecord() {
       date: todayKey(), timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
   } catch (e) {}
+}
+
+let _mediaRecorder = null, _audioChunks = [], _recBlob = null, _recTimer = null, _recSeconds = 0;
+async function toggleRec() {
+  const dr = await getDailyRecord();
+  if ((dr.recordingCount || 0) >= 3) { toast('🎉 오늘 인증 완료!'); return; }
+  if (_mediaRecorder && _mediaRecorder.state === 'recording') stopRec();
+  else startRec();
+}
+async function startRec() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    _audioChunks = []; _recSeconds = 0;
+    _mediaRecorder = new MediaRecorder(stream);
+    _mediaRecorder.ondataavailable = e => _audioChunks.push(e.data);
+    _mediaRecorder.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      _recBlob = new Blob(_audioChunks, { type: 'audio/webm' });
+      showRecPreview();
+    };
+    _mediaRecorder.start();
+    document.getElementById('recArea').innerHTML =
+      '<button class="rec-btn recording" onclick="toggleRec()">⏹️</button>' +
+      '<div class="rec-timer" id="recTimer">00:00</div>' +
+      '<div class="waveform"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>' +
+      '<div class="rec-status">🔴 녹음 중... 다시 누르면 멈춰요</div>';
+    _recTimer = setInterval(() => {
+      _recSeconds++;
+      const m = String(Math.floor(_recSeconds/60)).padStart(2,'0');
+      const s = String(_recSeconds%60).padStart(2,'0');
+      const t = document.getElementById('recTimer');
+      if (t) t.textContent = m + ':' + s;
+    }, 1000);
+  } catch (e) { toast('🎤 마이크 권한이 필요해요'); }
+}
+function stopRec() {
+  if (_mediaRecorder) _mediaRecorder.stop();
+  if (_recTimer) clearInterval(_recTimer);
+}
+function showRecPreview() {
+  const url = URL.createObjectURL(_recBlob);
+  document.getElementById('recArea').innerHTML =
+    '<audio class="rec-audio" controls src="' + url + '"></audio>' +
+    '<div class="rec-status">⏱️ ' + _recSeconds + '초 녹음됨</div>' +
+    '<div style="display:flex;gap:7px">' +
+    '<button class="submit-rec-btn" id="submitRecBtn" onclick="submitRec()">✅ 제출하기 (+10점)</button>' +
+    '<button class="retry-btn" onclick="resetRec()">다시 녹음</button>' +
+    '</div>';
+}
+async function submitRec() {
+  const btn = document.getElementById('submitRecBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ 업로드 중...'; }
+  try {
+    const reader = new FileReader();
+    reader.onload = async function () {
+      const base64 = reader.result.split(',')[1];
+      try {
+        await db.collection('recordings').add({
+          uid: CU.uid, username: UD.username, realName: UD.realName || UD.username,
+          duration: _recSeconds, audioBase64: base64, date: todayKey(),
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        const dr = await getDailyRecord();
+        const newCount = (dr.recordingCount || 0) + 1;
+        await setDailyField({ recordingCount: newCount });
+        await addPoints(10, '성경 읽기 인증');
+        toast('🎙️ 인증 완료! +10점 (오늘 ' + newCount + '/3회)');
+        playSound('success');
+        updateActivityUI();
+        if (newCount < 3) resetRec();
+      } catch (err) {
+        toast('⚠️ 업로드 실패: ' + err.message);
+        if (btn) { btn.disabled = false; btn.textContent = '✅ 제출하기 (+10점)'; }
+      }
+    };
+    reader.readAsDataURL(_recBlob);
+  } catch (e) {
+    toast('⚠️ 실패: ' + e.message);
+    if (btn) { btn.disabled = false; btn.textContent = '✅ 제출하기 (+10점)'; }
+  }
+}
+function resetRec() {
+  _recBlob = null; _audioChunks = []; _recSeconds = 0;
+  document.getElementById('recArea').innerHTML =
+    '<button class="rec-btn idle" id="recBtn" onclick="toggleRec()">🎙️</button>' +
+    '<div class="rec-status" id="recStatus">버튼을 누르고 성경을 소리 내어 읽어요</div>';
 }
 
 let _commPhotoBlob = null;
@@ -2037,7 +2248,7 @@ async function resetAllUserData() {
   const btn = document.getElementById('resetBtn');
   btn.disabled = true; btn.textContent = '⏳ 초기화 중...';
   try {
-    const cols = ['community','userDaily','pointLog'];
+    const cols = ['recordings','community','userDaily','pointLog'];
     for (const c of cols) {
       const s = await db.collection(c).get();
       const b = db.batch();
